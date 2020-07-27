@@ -1,0 +1,48 @@
+server:
+  port: 9100
+  servlet:
+    context-path: /client3
+
+spring:
+  application:
+    name: cas-gateway
+  cloud:
+    gateway:
+      routes:
+      - id: MICROSERVICE-CONFIG-CLIENT-TEST
+        uri: lb://MICROSERVICE-CONFIG-CLIENT-TEST
+        predicates:
+        - Path=/config_client_test/**
+        filters:
+          - GwSwaggerHeaderFilter
+          - StripPrefix=1
+
+      discovery:
+        locator:
+          lower-case-service-id: true
+          enabled: true
+
+eureka:
+  client: #客户端注册进eureka服务列表内
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+
+logging:
+  level:
+    org.springframework.cloud.gateway: trace
+    org.springframework.http.server.reactive: debug
+    org.springframework.web.reactive: debug
+#    reactor.ipc.netty: debug
+
+synpac:
+  cas:
+    cas-context-path: /cas             #cas服务的context-path 默认 cas
+    client-context-path: /client3      #部署服务的 context-path
+    logout-url: /logout                #单点退出url 默认 logout
+    service-url: http://localhost:9100  #本服务部署地址的地址，如果有反向代理为反向代理的地址
+    cas-service-url: http://localhost:8899   #cas 服务部署地址，如果有反向代理为反向代理的地址
+    white-url: ^.*(/logout/?|.html|/test/?|/v2/api-docs)$  #白名单，正则表达式
+    login-url: /login
+    exclude-url: /webjars/,/resources/,/swagger-ui.html,/swagger-resources/,/v2/api-docs
+
+
